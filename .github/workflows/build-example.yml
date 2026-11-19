@@ -1,0 +1,56 @@
+name: Build example (Windows)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "example/src/**"
+      - "example/Cargo.toml"
+      - "Cargo.toml"
+      - ".github/workflows/build-example.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-example
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build jt-demo (release, static CRT)
+        env:
+          RUSTFLAGS: "-C target-feature=+crt-static"
+        run: cargo build --release --manifest-path example/Cargo.toml
+
+      - name: Generate the screenshot with the executable itself
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "example/target/release/jt-demo.exe" `
+            -ArgumentList "--screenshot", "example/screenshot.png" `
+            -Wait -PassThru -NoNewWindow
+          if ($p.ExitCode -ne 0) { throw "jt-demo exited with $($p.ExitCode)" }
+          if (!(Test-Path "example/screenshot.png")) { throw "screenshot.png was not created" }
+
+      - name: Place the executable in example/
+        shell: pwsh
+        run: Copy-Item "example/target/release/jt-demo.exe" "example/jt-demo.exe" -Force
+
+      - name: Commit artefacts if they changed
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add example/jt-demo.exe example/screenshot.png
+          if git diff --cached --quiet; then
+            echo "Artefacts unchanged; nothing to commit."
+          else
+            git commit -m "Build example: jt-demo.exe + screenshot [skip ci]"
+            git push
+          fi
