@@ -1,0 +1,13 @@
+[package]
+name = "jt-demo"
+version = "0.1.0"
+edition = "2021"
+description = "J Toolkit example — a mid-90s corporate workstation dialog, rendered entirely with jt."
+license = "MIT"
+
+[[bin]]
+name = "jt-demo"
+path = "src/main.rs"
+
+[dependencies]
+jt = { path = ".." }
