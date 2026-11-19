@@ -1,0 +1,11 @@
+[package]
+name = "jt"
+version = "0.1.0"
+edition = "2021"
+description = "J Toolkit — a cross-platform retro toolkit in Rust, reminiscent of mid-90s corporate design. The J does not stand for anything; it is a nice looking glyph."
+license = "MIT"
+repository = "https://github.com/trafalmuffti/jt"
+
+[lib]
+name = "jt"
+path = "src/lib.rs"
