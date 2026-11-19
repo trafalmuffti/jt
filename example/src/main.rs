@@ -354,6 +354,9 @@ mod win32 {
     const WS_VISIBLE: u32 = 0x1000_0000;
     const SRCCOPY: u32 = 0x00CC_0020;
 
+    // user32 is not in std's default link set on MSVC, so name it
+    // explicitly (kernel32, which std does link, covers GetModuleHandleW).
+    #[link(name = "user32")]
     extern "system" {
         fn RegisterClassW(lp_wnd_class: *const WndClassW) -> u16;
         fn CreateWindowExW(
